@@ -10,7 +10,7 @@
     :root { 
       --accent: #0f0;         /* 전체 UI의 메인 포인트 컬러 (그린) */
       --scanner: #0ff;        /* 지문 스캐너 기본 색상 (시안) */
-      --bg-side: #0033ff; 
+      --bg-side: #0033DA; 
       --bg-center: #000;
     }
     
@@ -79,6 +79,37 @@
     }
     .left-logo { left: 50px; }
     .right-logo { right: 50px; }
+
+    .logo-img {
+      width: 160px;     /* 크기 조절 */
+      height: auto;
+      display: block;
+    }
+
+    .left-back-btn {
+        position: absolute;
+        bottom: 40px;
+        left: 50px;
+
+        background: none;
+        border: 2px solid white;
+        color: white;
+        padding: 8px 16px;
+        border-radius: 20px;
+
+        font-family: "Geo", sans-serif;
+        font-weight: 400;
+        font-size: 16pt;
+
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none; /* a태그 밑줄 제거 */
+    }
+
+    .left-back-btn:hover {
+        background-color: white;
+        color: #0033DA;
+    }
 
     /* ===========================
        [우측 프레임 UI 디자인] 
@@ -202,7 +233,7 @@
       LLITERRYLLY<br>
       LOCKED!
     </div>
-    <div class="brand-logo left-logo">UNLOCK</div>
+    <a href="index.html" class="left-back-btn">← BACK</a>
   </div>
   
   <div id="center-pane">
@@ -235,7 +266,9 @@
 
   <div id="right-pane">
     <div class="chain-bg"></div>
-    <div class="brand-logo right-logo">UNLOCK</div>
+    <div class="brand-logo right-logo">
+        <img src="logo_white.svg" class="logo-img">
+    </div>
   </div>
 
   <video id="video" playsinline></video>
@@ -312,20 +345,34 @@ function setupStage() {
     targets.push({ x: cW/2 + 120, y: cH/2 + 80, reqFinger: selected[2], matched: false }); 
   } 
   else if (currentStage === 3) {
-    headerTxt.innerText = "STAGE 3: TRACKING PROTOCOL";
-    const selected = shuffle([...FINGERS]).slice(0, 2); 
-    targets.push({ 
-      x: cW/2 - 100, y: cH/2 - 120, 
-      startX: cW/2 - 100, startY: cH/2 - 120, 
-      endX: cW/2 - 100, endY: cH/2 + 150, 
-      reqFinger: selected[0], matched: false 
-    });
-    targets.push({ 
-      x: cW/2 + 100, y: cH/2 + 150, 
-      startX: cW/2 + 100, startY: cH/2 + 150, 
-      endX: cW/2 + 100, endY: cH/2 - 120, 
-      reqFinger: selected[1], matched: false 
-    });
+    headerTxt.innerText = "STAGE 3: FULL SCAN PROTOCOL";
+    // 1. 손가락 5개 중 4개를 랜덤하게 선택
+    const selected = shuffle([...FINGERS]).slice(0, 4); 
+    
+    // 2. 4개의 타겟 위치 및 경로 설정 (X좌표를 일정 간격으로 배치)
+    // 손가락들이 겹치지 않게 가로로 나란히 배치합니다.
+    const spacing = 120; // 타겟 간 간격
+    const startOffset = - (spacing * 1.5); // 시작점 오프셋
+
+    for (let i = 0; i < 4; i++) {
+      const offsetX = startOffset + (i * spacing);
+      
+      // i가 짝수면 위에서 아래로, 홀수면 아래에서 위로 움직이게 교차 설정
+      const isEven = i % 2 === 0;
+      const startY = isEven ? cH / 2 - 180 : cH / 2 + 180;
+      const endY = isEven ? cH / 2 + 180 : cH / 2 - 180;
+
+      targets.push({ 
+        x: cW / 2 + offsetX, 
+        y: startY, 
+        startX: cW / 2 + offsetX, 
+        startY: startY, 
+        endX: cW / 2 + offsetX, 
+        endY: endY, 
+        reqFinger: selected[i], 
+        matched: false 
+      });
+    }
   }
 }
 
